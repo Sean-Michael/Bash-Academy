@@ -1,6 +1,9 @@
 #!/bin/bash
 
-verbose="false"
+verbose=false
+list_config=false
+check_config=false
+
 
 print_help() {
     cat << EOF
@@ -27,14 +30,6 @@ print_verbose() {
     fi
 }
 
-list_config() {
-    cat "$config_file"
-}
-
-check_config() {
-    cat "$1"
-}
-
 while getopts "f:k:v:e:t:o:lchV" opt; do
     case $opt in 
         f) config_file="$OPTARG";;
@@ -43,10 +38,14 @@ while getopts "f:k:v:e:t:o:lchV" opt; do
         e) environment="$OPTARG";;
         t) template_file="$OPTARG";;
         o) output_file="$OPTARG";;
-        l) list_config "$template_file" ;;
-        c) check_config "$template_file" ;;
+        l) list_config=true ;;
+        c) check_config=true ;;
         h) print_help ; exit 0 ;;
         V) verbose=true;;
         *) print_help ; exit 0 ;;
     esac
 done
+
+if [[ $list_config = true ]] ; then
+    awk '/^[^#]/ {print}' "$config_file"
+fi
