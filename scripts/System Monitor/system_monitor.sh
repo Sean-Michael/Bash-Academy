@@ -24,6 +24,8 @@ Accepted flags:
 EOF
 }
 
+
+
 while getopts "d:m:p:hv" opt; do 
     case $opt in
         d) disk_threshold="$OPTARG" ;;
@@ -31,6 +33,7 @@ while getopts "d:m:p:hv" opt; do
         p) proc_name="$OPTARG" ;;
         h) print_help ; exit 0 ;;
         v) verbose="true" ;;
+        f) exec > "$OPTARG" ;;
     esac
 done
 
