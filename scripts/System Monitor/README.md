@@ -63,7 +63,7 @@ All systems normal.
 ### With warnings:
 ```
 SYSTEM MONITOR REPORT
-====================
+ ====================
 Disk Usage: 85% (WARNING - exceeds threshold: 80%)
 Memory Usage: 67% (OK - threshold: 90%)
 Process 'apache2': RUNNING

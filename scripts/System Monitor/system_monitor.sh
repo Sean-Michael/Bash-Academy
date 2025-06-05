@@ -26,7 +26,7 @@ EOF
 
 
 
-while getopts "d:m:p:hv" opt; do 
+while getopts "d:m:p:f:hv" opt; do 
     case $opt in
         d) disk_threshold="$OPTARG" ;;
         m) mem_threshold="$OPTARG" ;;
@@ -34,6 +34,7 @@ while getopts "d:m:p:hv" opt; do
         h) print_help ; exit 0 ;;
         v) verbose="true" ;;
         f) exec > "$OPTARG" ;;
+        *) print_help ; exit 0 ;;
     esac
 done
 
@@ -64,7 +65,7 @@ else
     echo "Memory Usage: $mem_usage% (OK - threshold: $mem_threshold%)"
 fi
 
-if [ proc_name ] ; then
+if [ "$proc_name" ] ; then
     log_verbose "Checking PIDs for $proc_name"
     if pgrep -x "$proc_name" > /dev/null; then
         echo "Process '$proc_name': RUNNING"
