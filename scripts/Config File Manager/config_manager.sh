@@ -25,17 +25,39 @@ EOF
 }
 
 list_config() {
+    print_verbose "list_config()"
+    print_verbose "FILE: $(readlink -f "$1")"
     echo "CONFIGURATION SUMMARY"
     echo "====================="
-    echo "FILE: $(readlink -f "$1")"
     awk '/^[^#]/ {print}' "$1"
     count=$(awk '/^[^#]/ {print}' "$1" | wc -l)
     printf "\nTotal configurions: %s\n", "$count"
 }
 
+update_config() {
+    # Given a key value, and config, update existing or add new to config
+    print_verbose "update_config ()"
+    print_verbose "FILE: $1 KEY: $2 VAL: $3"
+    config="$1"
+    search_key="$2"
+    new_value="$3"
+    # Check if the key is already in the config:
+    old_value=$(awk -F'=' -v key="$search_key" '$1 == key {print $2}' "$config")
+    if [[ "$old_value" ]] ; then 
+        print_verbose "Found KEY: $search_key in $config, 
+        OLD_VAL: $old_value, 
+        NEW_VAL: $new_value"
+    else 
+        # Add new value
+        entry="$search_key=$new_value"
+        print_verbose "No match for KEY: $search_key, creating new entry:
+         $entry"
+    fi
+}
+
 print_verbose() {
     if [[ $verbose = true ]] ; then
-        echo "$*"
+        echo "[VERBOSE] $*"
     fi
 }
 
@@ -60,4 +82,8 @@ if [[ $list_config = true ]] ; then
         list_config "$config_file"
     else echo "Invalid or no Config file" ; exit 0 ;
     fi
+fi
+
+if [[ "$key"&&"$value" ]] ; then
+    update_config "$config_file" "$key" "$value"
 fi
