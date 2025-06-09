@@ -24,13 +24,22 @@ The following options are accepted:
 EOF
 }
 
+list_config() {
+    echo "CONFIGURATION SUMMARY"
+    echo "====================="
+    echo "FILE: $(readlink -f "$1")"
+    awk '/^[^#]/ {print}' "$1"
+    count=$(awk '/^[^#]/ {print}' "$1" | wc -l)
+    printf "\nTotal configurions: %s\n", "$count"
+}
+
 print_verbose() {
     if [[ $verbose = true ]] ; then
         echo "$*"
     fi
 }
 
-while getopts "f:k:v:e:t:o:lchV" opt; do
+while getopts "f:k:v:e:t:o:lchV/*/" opt; do
     case $opt in 
         f) config_file="$OPTARG";;
         k) key="$OPTARG";;
@@ -47,5 +56,8 @@ while getopts "f:k:v:e:t:o:lchV" opt; do
 done
 
 if [[ $list_config = true ]] ; then
-    awk '/^[^#]/ {print}' "$config_file"
+    if [[ -f "$config_file" ]] ; then
+        list_config "$config_file"
+    else echo "Invalid or no Config file" ; exit 0 ;
+    fi
 fi
