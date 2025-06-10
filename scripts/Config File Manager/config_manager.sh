@@ -35,24 +35,24 @@ list_config() {
 }
 
 update_config() {
-    # Given a key value, and config, update existing or add new to config
+    echo "Updating configuration:"
     print_verbose "update_config ()"
     print_verbose "FILE: $1 KEY: $2 VAL: $3"
     config="$1"
-    search_key="$2"
+    search_key="$2" && echo "Key: $search_key"
     new_value="$3"
-    # Check if the key is already in the config:
     old_value=$(awk -F'=' -v key="$search_key" '$1 == key {print $2}' "$config")
     if [[ "$old_value" ]] ; then 
-        print_verbose "Found KEY: $search_key in $config, 
-        OLD_VAL: $old_value, 
-        NEW_VAL: $new_value"
+        echo "Old value: $old_value"
+        echo "New value: $new_value"
+        sed -i "s/^${search_key}=.*/${search_key}=${new_value}/" "$config"
     else 
-        # Add new value
         entry="$search_key=$new_value"
         print_verbose "No match for KEY: $search_key, creating new entry:
          $entry"
+        echo "$entry" >> "$config"
     fi
+    echo "Configuration updated successfully."
 }
 
 print_verbose() {
