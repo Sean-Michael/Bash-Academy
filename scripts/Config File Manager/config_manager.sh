@@ -62,6 +62,35 @@ update_config() {
     echo "Configuration updated successfully."
 }
 
+load_env_config () {
+    env_file="configs/$environment.env"
+    declare -gA config
+
+    [[ -f "$env_file" ]] || { echo "Environment file not found for: $environment"; exit 1; }
+
+    while IFS='=' read -r key value ; do
+        [[ "$key" =~ ^[^#]*$ && -n "$key" ]] && config["$key"]="$value"
+    done < "$env_file"
+
+    for key in "${!config[@]}"; do
+        print_verbose "$key = ${config[$key]}"
+    done
+}
+
+template_config () {
+    load_env_config
+
+    cp "$template_file" "$output_file"
+
+    [[ -f "$output_file" ]] || { echo "Failed to write to file: $output_file" ; exit 1; }
+
+    for key in "${!config[@]}"; do 
+        local value="${config[$key]}"
+        print_verbose "Replacing {{$key}} with $value"
+        sed -i "s|{{$key}}|$value|g" "$output_file"
+    done
+}
+
 print_verbose() {
     if [[ $verbose = true ]] ; then
         echo "[VERBOSE] $*"
@@ -92,4 +121,9 @@ fi
 if [[ "$key" && "$value" ]] ; then
     [[ -f "$config_file" ]] || { echo "ERROR: config file required" ; exit 1; }
     update_config "$config_file" "$key" "$value"
+fi
+
+if [[ "$template_file" && "$environment" && "$output_file" ]] ; then
+    [[ -f "$template_file" ]] || { echo "ERROR: template file required" ; exit 1; }
+    template_config
 fi
